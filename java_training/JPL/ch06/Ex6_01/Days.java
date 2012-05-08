@@ -1,0 +1,5 @@
+package ch06.Ex6_01;
+
+public enum Days {
+	SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+}
