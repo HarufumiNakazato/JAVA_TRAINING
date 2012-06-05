@@ -6,7 +6,7 @@ import java.util.*;
 public class ClockModel {
 	
 	public String getNowTime(){
-		SimpleDateFormat sdf = new SimpleDateFormat("E K:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("kk:mm:ss");
 		return sdf.format(new Date().getTime());
 	}
 }
