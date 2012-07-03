@@ -1,4 +1,4 @@
-package gui1_1;
+package gui1_3;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -121,6 +121,7 @@ public class ClockView extends Frame{
 			@Override
 			public void componentMoved(ComponentEvent e) {
 				// TODO 自動生成されたメソッド・スタブ
+				
 			}
 
 			@Override

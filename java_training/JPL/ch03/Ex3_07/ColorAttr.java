@@ -61,7 +61,7 @@ public class ColorAttr extends Attr{
 	}
 	
 	public boolean equals(ColorAttr obj){
-		return (super.equals(obj)||obj.getColor().equals(myColor));
+		return (super.equals(obj)&&obj.getColor().equals(myColor));
 	}
 	
 	public int hashCode(){

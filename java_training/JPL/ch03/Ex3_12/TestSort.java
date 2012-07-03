@@ -2,7 +2,7 @@ package ch03.Ex3_12;
 
 public class TestSort {
 	static Object[] testData = {
-		"AB", "1.3e-2","7.9","CDE"
+		"AB", "1.3e-2","7.9","CDE","354"
 	};
 	
 	public static void main(String[] args){

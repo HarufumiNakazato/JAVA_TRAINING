@@ -7,6 +7,7 @@ public class X {
 	{
 		System.out.println("Xのフィールド初期化後");
         this.showX();
+        this.showY();
     }
     
     public X() {
@@ -26,5 +27,9 @@ public class X {
         System.out.println(" " 
             + "xMask = 0x" + Integer.toHexString(this.xMask) + " "
             + "fullMask = 0x" + Integer.toHexString(this.fullMask));
+    }
+    
+    void showY(){
+    	//Yクラスでoverrideさせているので、必ず子クラスのshowY()が呼ばれる
     }
 }

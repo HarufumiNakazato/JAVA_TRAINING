@@ -1,4 +1,4 @@
-package gui1_1;
+package gui1_2;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
