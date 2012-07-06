@@ -1,6 +1,7 @@
 package ch07.Ex7_03;
 
 public class PascalsTriangle {
+
 	public static void main(String[] args){
 		PascalsTriangle pt = new PascalsTriangle();
 		int depth = 12;	    

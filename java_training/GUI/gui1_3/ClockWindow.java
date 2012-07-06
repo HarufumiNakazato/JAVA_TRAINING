@@ -268,8 +268,12 @@ public class ClockWindow extends Window{
 		for(int k = 0;k < SIZES.length;k++)
 			sizeMenu.getItem(k).addActionListener(new MyActionListener(w));
 	}
+
+	//double buffering のためのオーバーライド
+	public void update(Graphics g){
+			paint(g);
+		}
 	//マウスをクリック、ドラッグしたときの挙動を定義
-	
 	public void receiveMouseEvent(Window w){
 		class MouseDrag implements MouseMotionListener,MouseListener{
 
@@ -284,21 +288,11 @@ public class ClockWindow extends Window{
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO 自動生成されたメソッド・スタブ
-					System.out.println("dragged");
-					draggedPoint = MouseInfo.getPointerInfo().getLocation();
-					/*windowPoint = getLocation();
-					Point diff = new Point(draggedPoint.x-windowPoint.x, draggedPoint.y-windowPoint.y);
-
-					System.out.println("diff:" + diff);
-					//System.out.println("window:" + windowPoint);
-					setLocation(draggedPoint.x-diff.x, draggedPoint.y-diff.y);
-					*/
-					 Point cursor = e.getLocationOnScreen();
-					    int xdiff = cursor.x - draggedPoint.x;
-					    int ydiff = cursor.y - draggedPoint.y;
-					    //System.out.println(draggedPoint.x - xdiff);
-					    w.setLocation(draggedPoint.x , draggedPoint.y);
-
+					//System.out.println("dragged");
+				    
+				draggedPoint = MouseInfo.getPointerInfo().getLocation();
+				//System.out.println(draggedPoint.x - xdiff);
+				 w.setLocation(draggedPoint.x , draggedPoint.y);
 			}
 
 			@Override

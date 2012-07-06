@@ -19,6 +19,7 @@ public enum Color {
 	};
 	
 	String name;
+	
 	Color(String name){
 		this.name = name;
 	}

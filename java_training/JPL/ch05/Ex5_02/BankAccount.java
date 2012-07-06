@@ -18,6 +18,9 @@ public class BankAccount {
 		ba.withdraw(5000);
 		ba.transfer(tba, 2000);
 		ba.deposit(50000);
+		ba.historyList.show();
+		
+		System.out.println("");
 		ba.deposit(10000);
 		ba.withdraw(30000);
 		ba.transfer(tba, 6000);
