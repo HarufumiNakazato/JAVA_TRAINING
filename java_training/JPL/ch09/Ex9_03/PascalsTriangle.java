@@ -28,6 +28,7 @@ public class PascalsTriangle {
 				System.out.print(triangle[k][l] + " ");
 			}
 			System.out.println("");
+			
 		}
 	}
 }
