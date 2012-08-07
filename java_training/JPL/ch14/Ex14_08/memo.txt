@@ -1,0 +1,3 @@
+mac OS X ver.10.8
+CPU: 1.6GHz Intel Core i5
+2/20
