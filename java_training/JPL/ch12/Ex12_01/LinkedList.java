@@ -4,6 +4,7 @@ public class LinkedList<E>{
 	private LinkedList<E> next;
 	private E e;
 	private int index;
+
 	
 	public LinkedList (){}
 	public LinkedList(E e){
