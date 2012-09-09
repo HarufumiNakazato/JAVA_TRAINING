@@ -3,6 +3,7 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.awt.Button;
+import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,6 +16,8 @@ import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 public class Interpreter extends Frame{
@@ -45,6 +48,7 @@ public class Interpreter extends Frame{
 	private Button createArrayButton;
 	
 	private Object createdArray;
+	private ArrayList<Object> createdObjectList;
 	private Button clear;
 	private Button setElementButton;
 	private Button getElementButton;
@@ -52,14 +56,20 @@ public class Interpreter extends Frame{
 	private TextField getElementText;
 	private TextField setElementText;
 	
+	private Choice preservedObjects;
+	private Button selectObjectButton;
 	private Type elementType;
+	
+	private Button preserveButton;
+	
+	private Object selectedObject;
 	
 	public static void main(String[] args){
 		Interpreter interpret = new Interpreter();
 		interpret.start();
 	}
 	public Interpreter(){
-		
+		createdObjectList = new ArrayList<Object>();
 	}
 	public void start(){
 		this.setMainForm();
@@ -67,7 +77,7 @@ public class Interpreter extends Frame{
 		this.recieveCloseEvent();
 		
 	}
-	//Form‚Ìƒpƒ‰ƒ[ƒ^‚ğİ’è
+	//Formã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’è¨­å®š
 	public void setMainForm(){
 		this.setSize(new Dimension(width,height));
 		this.setLocation(ENV.getMaximumWindowBounds().width/2,ENV.getMaximumWindowBounds().height/2);
@@ -77,64 +87,69 @@ public class Interpreter extends Frame{
 		this.setBackground(Color.white);
 		this.setVisible(true);
 	}
-	//Form‚ÉƒIƒuƒWƒFƒNƒg‚ğƒZƒbƒg‚·‚é
+	//Formã«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚»ãƒƒãƒˆã™ã‚‹
 	public void setObject(){
-		//Object–¼“ü—ÍƒtƒB[ƒ‹ƒh
+		//Objectåå…¥åŠ›ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰
 		this.setBackground(Color.lightGray);
-		this.add(new Label("Create object"));
+		this.add(new Label("Show object"));
 		tf = (TextField)add(new TextField(20));
-		//createƒ{ƒ^ƒ“
-		createObjectButton = new Button("create");
+		//createãƒœã‚¿ãƒ³
+		createObjectButton = new Button("show");
+		
 		createObjectButton.setBackground(Color.lightGray);
 		recieveCreateButtonEvent(this);
 		this.add(createObjectButton);
 		
-		//Field–¼•ÏX—p“ü—ÍƒtƒB[ƒ‹ƒh
+		//Fieldåå¤‰æ›´ç”¨å…¥åŠ›ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰
 		this.add(new Label("Modify field"));
 		fieldNameInputText = (TextField)add(new TextField(20));
 		
-		//Field’l•ÏX—p“ü—ÍƒtƒB[ƒ‹ƒh
+		//Fieldå€¤å¤‰æ›´ç”¨å…¥åŠ›ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰
 		fieldValueInputText = (TextField)add(new TextField(5));
 		
-		//modifyƒ{ƒ^ƒ“
+		//modifyãƒœã‚¿ãƒ³
 		modifyValueButton = new Button("modify");
 		modifyValueButton.setBackground(Color.lightGray);
 		recieveModifyButtonEvent(this);
 		this.add(modifyValueButton);
 		
-		//method–¼“ü—ÍƒGƒŠƒA
+		//methodåå…¥åŠ›ã‚¨ãƒªã‚¢
 		this.add(new Label("Execute method"));
 		this.methodNameInputText = (TextField)add(new TextField(20));
 		
-		//param“ü—ÍƒGƒŠƒA
+		//paramå…¥åŠ›ã‚¨ãƒªã‚¢
 		methodParamInputText = (TextField)add(new TextField(10));
 		
-		//methodÀsƒ{ƒ^ƒ“
+		//methodå®Ÿè¡Œãƒœã‚¿ãƒ³
 		this.executeButton = new Button("execute");
 		executeButton.setBackground(Color.lightGray);
 		recieveExecuteButtonEvent(this);
 		this.add(executeButton);
 
-		//Class.constructorname “ü—ÍƒtƒB[ƒ‹ƒh
+		//Class.constructorname å…¥åŠ›ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰
 		this.add(new Label("Constructor"));
 		constructorNameInputText = (TextField)add(new TextField(20));
 		//params
 		this.constParamsText = (TextField)add(new TextField(10));
-		//ƒRƒ“ƒXƒgƒ‰ƒNƒ^¶¬ƒ{ƒ^ƒ“
-		createInstanceButton = new Button("call");
+		//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ç”Ÿæˆãƒœã‚¿ãƒ³
+		createInstanceButton = new Button("create");
 		createInstanceButton.setBackground(Color.lightGray);
 		recieveCallConstButtonEvent(this);
 		this.add(createInstanceButton);
+		preserveButton = new Button("preserve");
+		this.add(preserveButton);
+		recievePreserveButtonEvent(this);
 		
-		//”z—ñ‚Ì¶¬ƒ{ƒ^ƒ“
+		//é…åˆ—ã®ç”Ÿæˆãƒœã‚¿ãƒ³
 		this.add(new Label("Create array"));
 		createArrayButton = new Button("Array");
 		arrayTypeText = (TextField)add(new TextField(10));
 		arraySizeText = (TextField)add(new TextField(5));
 		recieveCreateArrayButtonEvent(this);
+		
 		this.add(createArrayButton);
 		
-		//”z—ñ’l‚Ìæ“¾İ’è
+		//é…åˆ—å€¤ã®å–å¾—è¨­å®š
 		this.add(new Label("Set element"));
 		setElementText = (TextField)add(new TextField(5));
 		setElementButton = new Button("set");
@@ -146,7 +161,18 @@ public class Interpreter extends Frame{
 		getElementButton = new Button("get");
 		recieveGetElementButtonEvent(this);
 		this.add(getElementButton);
-		//ObjectÚ×•\¦ƒGƒŠƒA
+		
+		//ç”Ÿæˆã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚³ãƒ³ãƒœãƒœãƒƒã‚¯ã‚¹
+		this.add(new Label("Select Object"));
+		preservedObjects = new Choice();
+		preservedObjects.addItemListener(new choiceItemAdapter());
+		selectObjectButton = new Button("Select");
+		recieveSelectObjectButtonEvent(this);
+		this.add(selectObjectButton);
+		this.add(preservedObjects);
+
+		
+		//Objectè©³ç´°è¡¨ç¤ºã‚¨ãƒªã‚¢
 		dispArea = new TextArea();
 		this.add(dispArea);
 		
@@ -156,7 +182,28 @@ public class Interpreter extends Frame{
 		
 		
 	}
-	//•Â‚¶‚éƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//choiceã‚’å¤‰æ›´ã—ãŸã¨ãã®å‡¦ç†
+	private class choiceItemAdapter implements ItemListener{
+
+		@Override
+		public void itemStateChanged(ItemEvent arg0) {
+			// TODO Auto-generated method stub
+			selectedObject = createdObjectList.get(preservedObjects.getSelectedIndex());
+		}
+		
+	}
+	//ä¿å­˜ãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ãŸæ™‚ã®æŒ™å‹•
+	public void recievePreserveButtonEvent(final Interpreter interpret){
+		class MyActionListener implements ActionListener{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//createArray Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
+				createdObjectList.add(createdObject);
+				preservedObjects.add(createdObject.getClass().getName());			}
+		}
+		preserveButton.addActionListener(new MyActionListener());
+	}
+	//é–‰ã˜ã‚‹ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveCloseEvent(){
 		addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
@@ -164,12 +211,23 @@ public class Interpreter extends Frame{
 			}
 		});
 	}
-	//setElementƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//select objectãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
+	public void recieveSelectObjectButtonEvent(final Interpreter interpret){
+		class MyActionListener implements ActionListener{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//createArray Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
+				showContents(selectedObject);
+			}
+		}
+		selectObjectButton.addActionListener(new MyActionListener());
+	}
+	//setElementãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveSetElementButtonEvent(final Interpreter interpret){
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//createArray Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+				//createArray Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				if(!setElementText.getText().equals("") || setElementText.getText().split(",").length<2){
 					int ind = Integer.parseInt(setElementText.getText().split(",")[0]);
 					try{
@@ -185,12 +243,12 @@ public class Interpreter extends Frame{
 		}
 		setElementButton.addActionListener(new MyActionListener());
 	}
-	//getElementƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//getElementãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 		public void recieveGetElementButtonEvent(final Interpreter interpret){
 			class MyActionListener implements ActionListener{
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					//createArray Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+					//createArray Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 					int ind = Integer.parseInt(getElementText.getText());
 					System.out.println(ind);
 					if(elementType.getClass().isPrimitive()){
@@ -207,23 +265,23 @@ public class Interpreter extends Frame{
 			}
 			getElementButton.addActionListener(new MyActionListener());
 		}
-	//clearƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//clearãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveClearButtonEvent(final Interpreter interpret){
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//createArray Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+				//createArray Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				dispArea.setText("");
 			}
 		}
 		clear.addActionListener(new MyActionListener());
 	}
-	//createArrayƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//createArrayãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveCreateArrayButtonEvent(final Interpreter interpret){
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//createArray Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+				//createArray Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				createdArray = null;
 				int size = 0;
 				if(!interpret.arrayTypeText.equals("")){
@@ -241,27 +299,35 @@ public class Interpreter extends Frame{
 						}
 						createdArray = Array.newInstance((Class<?>)elementType ,size);
 						try {
-							Class<?> cls = Class.forName(arrayTypeText.getText());
+							Class<?> cls = (Class<?>)returnType(arrayTypeText.getText());
+							System.out.println(cls.toString());
 							if(!cls.isPrimitive())
 								for(int k = 0;k<size;k++)
 									try {
-										Array.set(createdArray, k, cls.newInstance());
+										try {
+											Array.set(createdArray, k, cls.newInstance());
+										} catch (InstantiationException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+											dispArea.append("\n"+e.getMessage());
+										} catch (IllegalAccessException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+											dispArea.append("\n"+e.getMessage());
+										}
 									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
+										dispArea.append("\n"+e.getMessage());
 									} catch (IllegalArgumentException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
-									} catch (InstantiationException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									} catch (IllegalAccessException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+										dispArea.append("\n"+e.getMessage());
 									}
 						} catch (ClassNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+							dispArea.append("\n"+e.getMessage());
 						}
 						dispArea.setText(interpret.arrayTypeText.getText() + "[" + size + "]");
 					}catch(NullPointerException e){
@@ -274,12 +340,12 @@ public class Interpreter extends Frame{
 		}
 		createArrayButton.addActionListener(new MyActionListener());
 	}
-	//callconstƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//callconstãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveCallConstButtonEvent(final Interpreter interpret){
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//callconst Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+				//callconst Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				dispArea.setText("");
 				Class<?> cls = null;
 				try {
@@ -294,9 +360,10 @@ public class Interpreter extends Frame{
 				
 				if(!interpret.constructorNameInputText.getText().equals("")){
 					
-					if(interpret.constParamsText.getText().equals(""))//ƒRƒ“ƒXƒgƒ‰ƒNƒ^ˆø”‚ª‚È‚¢ê‡
+					if(interpret.constParamsText.getText().equals(""))//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿å¼•æ•°ãŒãªã„å ´åˆ
 						try {
 							createdObject = cls.newInstance();
+
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -310,20 +377,23 @@ public class Interpreter extends Frame{
 							e.printStackTrace();
 							dispArea.append("\n" + "throw " + e.getCause().toString());
 						}
-					else{//ƒRƒ“ƒXƒgƒ‰ƒNƒ^ˆø”‚ª‘¶İ‚·‚éê‡
+					else{//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿å¼•æ•°ãŒå­˜åœ¨ã™ã‚‹å ´åˆ
 						String[] params = interpret.constParamsText.getText().split(",");
 						String[] paramTypes = new String[params.length];
 						String[] paramValues = new String[params.length];
 						
-						System.out.println(paramTypes.length);
 						for(int j = 0;j<params.length;j++){
 							paramTypes[j] = params[j].split(" ")[0];
+							System.out.println(paramTypes[j]);
 							paramValues[j] = params[j].split(" ")[1];
+							System.out.println(paramValues[j]);
 						}
 						
 						Constructor[] cons = cls.getConstructors();
+					
 						for(Constructor c:cons){
 							Type[] types = c.getGenericParameterTypes();
+							//System.out.println("-----------" + types.length);
 							if(types.length==0)
 								defaultConst = c;
 							else if(types.length == params.length)
@@ -343,13 +413,34 @@ public class Interpreter extends Frame{
 								break;
 							}
 						}
-						System.out.println(resultType[1] + "----------------");
+						
+						//System.out.println(resultType[1] + "----------------");
 						Object[] obj = new Object[paramTypes.length];
+						Class<?>[] parats = new Class<?>[paramTypes.length];
 						for(int m = 0; m < obj.length;m++){
-							obj[m] = Interpreter.returnValue(paramValues[m], resultType[m]);
+							System.out.println(paramValues[m]);
+							try {
+								obj[m] = Interpreter.returnValue(paramValues[m], Interpreter.returnType(paramTypes[m]));
+								parats[m] = (Class<?>)Interpreter.returnType(paramTypes[m]);
+							} catch (ClassNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								e.getCause();
+							}
+						}
+						//å¼•æ•°ã®å‹ã«ã‚ã£ãŸã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã®å–å¾—
+						try {
+							result = cls.getConstructor(parats);
+						} catch (SecurityException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (NoSuchMethodException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
 						try {
 							createdObject = result.newInstance(obj);
+							
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -378,12 +469,12 @@ public class Interpreter extends Frame{
 		}
 		createInstanceButton.addActionListener(new MyActionListener());
 	}
-	//excecuteƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//excecuteãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveExecuteButtonEvent(final Interpreter interpret){
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//execute Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+				//execute Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				Method method = null;
 				Type[] types = null;
 				Type[] exceptions = null;
@@ -443,7 +534,8 @@ public class Interpreter extends Frame{
 						}
 					}
 				
-				//method‚ªˆø”‚ğ‚à‚½‚È‚¢ê‡
+				//methodãŒå¼•æ•°ã‚’ã‚‚ãŸãªã„å ´åˆ
+					System.out.println(method.getParameterTypes());
 				if(method.getParameterTypes().length==0){
 					try {
 						
@@ -455,16 +547,18 @@ public class Interpreter extends Frame{
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+							dispArea.append(e.getMessage());
 						}
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						dispArea.append(e.getMessage());
 					}catch (InvocationTargetException ite){
 						for(Type et:exceptions)
 							if(et == ite.getCause().getClass())
 								dispArea.append("\n" + "throw " + ite.getCause().toString());
 					}
-				}else{//ˆø”‚ª‚ ‚éê‡
+				}else{//å¼•æ•°ãŒã‚ã‚‹å ´åˆ
 					if(interpret.methodParamInputText.getText().equals(""))
 						dispArea.setText("Input Parameters.");
 					else{
@@ -477,7 +571,13 @@ public class Interpreter extends Frame{
 								for(int i = 0; i<os.length; i++)
 									os[i] = Interpreter.returnValue(paramValues[i], types[i]);
 								try {
-									Object o = method.invoke(createdObject, os);
+									Object o;
+									if(paramValues[0].equals("selected")){
+										o = method.invoke(createdObject,selectedObject);
+									}
+									else
+										o = method.invoke(createdObject, os);
+									
 									if(o!=null)
 										dispArea.append("\n" + "return " + o.toString() + "\n");
 								} catch (IllegalArgumentException e) {
@@ -505,44 +605,30 @@ public class Interpreter extends Frame{
 		executeButton.addActionListener(new MyActionListener());
 	}
 
-	//createƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//showãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveCreateButtonEvent(final Interpreter interpret){
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//create Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
-				String text = interpret.tf.getText();
+				//create Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				try {
-					Class<?> cls = Class.forName(text);
-					try {
-						createdObject = cls.cast(cls.newInstance());
-					} catch (InstantiationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						interpret.dispArea.setText(e.getMessage());
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					interpret.showField(cls.getDeclaredFields(),createdObject);
-					interpret.showConstructor(cls.getConstructors(), createdObject);
-					interpret.showMethod(cls.getDeclaredMethods(), createdObject);
+					Class<?> cls = Class.forName(interpret.tf.getText());
+					showContents(cls);
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					interpret.dispArea.setText(e.toString());
 				}
 			}
 		}
 		createObjectButton.addActionListener(new MyActionListener());
 	}
-	//modifyƒ{ƒ^ƒ“‰Ÿ‰º‚Ì‹““®
+	//modifyãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®æŒ™å‹•
 	public void recieveModifyButtonEvent(final Interpreter interpret){
 		
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//modify Button‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+				//modify Buttonã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
 				if(interpret.fieldNameInputText.getText() != ""){
 					
 					String newValue = interpret.fieldValueInputText.getText();
@@ -590,7 +676,33 @@ public class Interpreter extends Frame{
 		showField(fs,obj);
 		showMethod(ms,obj);
 	}
-	//Constructor‚ğ•\¦‚³‚¹‚é
+	public void showContents(Class<?> cls){
+		Constructor[] cons = cls.getConstructors();
+		Field[] fs = cls.getDeclaredFields();
+		Method[] ms = cls.getDeclaredMethods();
+		
+		dispArea.append("[Constuctor]\n");
+		this.showConstructor(cons, cls);
+		dispArea.append("\n");
+		dispArea.append("[Field]\n");
+		try {
+			this.showField(fs,cls);
+			dispArea.append("\n");
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		dispArea.append("[Method]\n");
+		this.showMethod(ms,cls);
+		dispArea.append("\n");
+	}
+	//Constructorã‚’è¡¨ç¤ºã•ã›ã‚‹
+	public void showConstructor(Constructor[] cons,Class<?> cls){
+		for(Constructor c:cons){
+		String decl = showDescr(c.toString(),cls.getName());
+    	this.dispArea.append(decl + "\n");
+		}
+	}
 	public void showConstructor(Constructor[] cons,Object obj){
 		for (Constructor c : cons) {
         	if (c.getDeclaringClass() == Object.class)
@@ -602,7 +714,27 @@ public class Interpreter extends Frame{
         	this.dispArea.append(decl + "\n");
     	}
 	}
-	//Field‚ğ•\¦‚³‚¹‚é
+	//Fieldã‚’è¡¨ç¤ºã•ã›ã‚‹
+	public void showField(Field[] fs, Class<?> cls) throws IllegalAccessException{
+		for (Field f : fs) {
+        	if (f.getDeclaringClass() == Object.class)
+        		continue;
+        	try {
+        		f.setAccessible(true);
+				try {
+					//if(!f.getType().isArray())
+						this.dispArea.append(f.getType() + " " + f.getName() +"\n" + " " );
+
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (IllegalArgumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
 	public void showField(Field[] fs,Object obj){
 		for (Field f : fs) {
         	if (f.getDeclaringClass() == Object.class)
@@ -613,7 +745,7 @@ public class Interpreter extends Frame{
 					//if(!f.getType().isArray())
 						this.dispArea.append(f.getType() + " " + f.getName() + " = " + f.get(obj) +"\n");
 					/*
-						else{//field‚ª”z—ñ‚¾‚Á‚½ê‡
+						else{//fieldãŒé…åˆ—ã ã£ãŸå ´åˆ
 						String temp = "{";
 						Class<?> type = f.getClass().getComponentType();
 						for(int k = 0;k<Array.getLength(f);k++){
@@ -640,7 +772,18 @@ public class Interpreter extends Frame{
     	}
 		this.dispArea.append("\n");
 	}
-	//Method‚ğ•\¦‚³‚¹‚é
+	//Methodã‚’è¡¨ç¤ºã•ã›ã‚‹
+	public void showMethd(Method[] ms, Class<?> cls){
+		for (Method m : ms) {
+        	if (m.getDeclaringClass() == Object.class)
+        		continue;
+        	if(m.getDeclaringClass() == m.getClass())
+        		continue;
+        	
+        	String decl = showDescr(m.toString(),cls.getName());
+        	this.dispArea.append(decl + "\n");
+    	}
+	}
 	public void showMethod(Method[] ms, Object obj){
 		for (Method m : ms) {
         	if (m.getDeclaringClass() == Object.class)
@@ -682,8 +825,8 @@ public class Interpreter extends Frame{
     }
 	public static Object returnValue(String value, Type type){
 		if(type == int.class){
-			//System.out.println("Int");
-			System.out.println(value);
+			System.out.println("Int");
+			//System.out.println(value);
 			return Integer.parseInt(value);
 		}
 		else if(type == String.class){
@@ -729,6 +872,10 @@ public class Interpreter extends Frame{
 			return Color.class;
 		else if(Frame.class.toString().contains(s))
 			return Frame.class;
+		else if(Frame.class.toString().contains(s))
+			return boolean.class;
+		else if(Frame.class.toString().contains(s))
+			return char.class;
 		else if(TestSample.class.toString().contains(s))
 			return TestSample.class;
 		else
