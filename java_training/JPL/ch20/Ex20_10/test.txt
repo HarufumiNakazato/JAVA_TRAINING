@@ -1,0 +1,11 @@
+In the Java programming language, programs are built from classes. From a class definition, you can create
+any number of objects that are known as instances of that class. Think of a class as a factory with blueprints
+and instructions to build gadgetsobjects are the gadgets the factory makes.
+
+A class contains members, the primary kinds being fields and methods. Fields are data variables belonging
+either to the class itself or to objects of the class; they make up the state of the object or class. Methods are
+collections of statements that operate on the fields to manipulate the state. Statements define the behavior of
+the classes: they can assign values to fields and other variables, evaluate arithmetic expressions, invoke
+methods, and control the flow of execution.
+
+Long tradition holds that the first sample program for any language should print "Hello, world":
