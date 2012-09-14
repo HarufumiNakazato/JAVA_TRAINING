@@ -287,17 +287,23 @@ public class Interpreter extends Frame{
 				if(!interpret.arrayTypeText.equals("")){
 					
 					if(!interpret.arraySizeText.equals(""))
+						try{
 						size = (Integer) returnValue(interpret.arraySizeText.getText(),int.class);
+						}catch(Exception e){
+							dispArea.append(e.getMessage());
+						}
 					try{
 						try {
 							elementType = returnType(interpret.arrayTypeText.getText());
+							createdArray = Array.newInstance((Class<?>)elementType ,size);
+							dispArea.setText(interpret.arrayTypeText.getText() + "[" + size + "]");
 
 						} catch (ClassNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.setText(e.toString());
+							dispArea.append("\n" + e.toString());
 						}
-						createdArray = Array.newInstance((Class<?>)elementType ,size);
+						
 						try {
 							Class<?> cls = (Class<?>)returnType(arrayTypeText.getText());
 							System.out.println(cls.toString());
@@ -309,29 +315,28 @@ public class Interpreter extends Frame{
 										} catch (InstantiationException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
-											dispArea.append("\n"+e.getMessage());
+											dispArea.append("\n"+e.toString());
 										} catch (IllegalAccessException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
-											dispArea.append("\n"+e.getMessage());
+											dispArea.append("\n"+e.toString());
 										}
 									} catch (ArrayIndexOutOfBoundsException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
-										dispArea.append("\n"+e.getMessage());
+										dispArea.append("\n"+e.toString());
 									} catch (IllegalArgumentException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
-										dispArea.append("\n"+e.getMessage());
+										dispArea.append("\n"+e.toString());
 									}
 						} catch (ClassNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n"+e.getMessage());
+							dispArea.setText("\n"+e.toString());
 						}
-						dispArea.setText(interpret.arrayTypeText.getText() + "[" + size + "]");
 					}catch(NullPointerException e){
-						dispArea.setText("Input type is invalid.");
+						dispArea.setText(e.toString() + ":Input type is invalid.");
 					}
 					
 				}else
