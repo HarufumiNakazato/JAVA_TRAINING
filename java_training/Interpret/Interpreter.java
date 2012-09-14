@@ -72,9 +72,13 @@ public class Interpreter extends Frame{
 		createdObjectList = new ArrayList<Object>();
 	}
 	public void start(){
+		try{
 		this.setMainForm();
 		this.setObject();
 		this.recieveCloseEvent();
+		}catch(Throwable e){
+			dispArea.setText(e.getStackTrace().toString());
+		}
 		
 	}
 	//Formのパラメータを設定
@@ -249,6 +253,7 @@ public class Interpreter extends Frame{
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					//createArray Buttonを押したときの処理
+					
 					int ind = Integer.parseInt(getElementText.getText());
 					System.out.println(ind);
 					if(elementType.getClass().isPrimitive()){
@@ -496,7 +501,7 @@ public class Interpreter extends Frame{
 						paramValues[i] = params[i].split(" ")[1];
 				}
 				if(!interpret.methodNameInputText.getText().equals("")){
-					Class t = createdObject.getClass();
+						Class t = createdObject.getClass();
 					while(t != null){
 						try {
 							//method = createdObject.getClass().getMethod(interpret.methodNameInputText.getText());
@@ -540,7 +545,12 @@ public class Interpreter extends Frame{
 					}
 				
 				//methodが引数をもたない場合
+					try{
 					System.out.println(method.getParameterTypes());
+				}catch(Exception e){
+					dispArea.setText(e.toString());
+					return;
+				}
 				if(method.getParameterTypes().length==0){
 					try {
 						
@@ -617,8 +627,11 @@ public class Interpreter extends Frame{
 			public void actionPerformed(ActionEvent arg0) {
 				//create Buttonを押したときの処理
 				try {
-					Class<?> cls = Class.forName(interpret.tf.getText());
-					showContents(cls);
+					if(tf.getText().equals("selected"))
+						showContents(selectedObject);
+					else
+						showContents(Class.forName(interpret.tf.getText()));
+	
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
