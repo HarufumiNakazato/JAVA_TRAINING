@@ -235,7 +235,10 @@ public class Interpreter extends Frame{
 				if(!setElementText.getText().equals("") || setElementText.getText().split(",").length<2){
 					int ind = Integer.parseInt(setElementText.getText().split(",")[0]);
 					try{
-						Array.set(createdArray, ind, returnValue(setElementText.getText().split(",")[1],elementType));
+						if(setElementText.getText().split(",")[1].equals("selected"))
+							Array.set(createdArray, ind, selectedObject);
+						else
+							Array.set(createdArray, ind, returnValue(setElementText.getText().split(",")[1],elementType));
 					}catch(ArrayIndexOutOfBoundsException e){
 						dispArea.setText(e.toString());
 					}
@@ -253,10 +256,11 @@ public class Interpreter extends Frame{
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					//createArray Buttonを押したときの処理
+					try{
+						int ind = Integer.parseInt(getElementText.getText());
 					
-					int ind = Integer.parseInt(getElementText.getText());
 					System.out.println(ind);
-					if(elementType.getClass().isPrimitive()){
+					if(isPrimitive(elementType.toString())){
 						try{
 							dispArea.append("\n"+"[" + ind + "] = " + Array.get(createdArray,ind).toString());
 						}catch(Exception e){
@@ -265,6 +269,9 @@ public class Interpreter extends Frame{
 					}else{
 						createdObject = Array.get(createdArray, ind);
 						showContents(createdObject);
+					}
+					}catch(NumberFormatException e){
+						dispArea.setText(e.toString());
 					}
 				}
 			}
@@ -275,7 +282,7 @@ public class Interpreter extends Frame{
 		class MyActionListener implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//createArray Buttonを押したときの処理
+				//crear Buttonを押したときの処理
 				dispArea.setText("");
 			}
 		}
@@ -295,7 +302,7 @@ public class Interpreter extends Frame{
 						try{
 						size = (Integer) returnValue(interpret.arraySizeText.getText(),int.class);
 						}catch(Exception e){
-							dispArea.append(e.getMessage());
+							dispArea.append(e.toString());
 						}
 					try{
 						try {
@@ -311,7 +318,6 @@ public class Interpreter extends Frame{
 						
 						try {
 							Class<?> cls = (Class<?>)returnType(arrayTypeText.getText());
-							System.out.println(cls.toString());
 							if(!cls.isPrimitive())
 								for(int k = 0;k<size;k++)
 									try {
@@ -363,7 +369,7 @@ public class Interpreter extends Frame{
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					dispArea.append("\n" + "throw " + e.getCause().toString());
+					dispArea.append("\n" + "throw " + e.toString());
 				}
 				Constructor defaultConst = null;
 				ArrayList<Constructor> overLoadConsts = new ArrayList<Constructor>();
@@ -377,15 +383,15 @@ public class Interpreter extends Frame{
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n" + "throw " + e.getCause().toString());
+							dispArea.append("\n" + "throw " + e.toString());
 						} catch (InstantiationException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n" + "throw " + e.getCause().toString());
+							dispArea.append("\n" + "throw " + e.toString());
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n" + "throw " + e.getCause().toString());
+							dispArea.append("\n" + "throw " + e.toString());
 						}
 					else{//コンストラクタ引数が存在する場合
 						String[] params = interpret.constParamsText.getText().split(",");
@@ -435,7 +441,7 @@ public class Interpreter extends Frame{
 							} catch (ClassNotFoundException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-								e.getCause();
+								dispArea.setText(e.toString());
 							}
 						}
 						//引数の型にあったコンストラクタの取得
@@ -454,15 +460,15 @@ public class Interpreter extends Frame{
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n" + "throw " + e.getCause().toString());
+							dispArea.append("\n" + "throw " + e.toString());
 						} catch (InstantiationException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n" + "throw " + e.getCause().toString());
+							dispArea.append("\n" + "throw " + e.toString());
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append("\n" + "throw " + e.getCause().toString());
+							dispArea.append("\n" + "throw " + e.toString());
 						} catch (InvocationTargetException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -495,10 +501,20 @@ public class Interpreter extends Frame{
 					paramTypes = new String[params.length];
 					paramValues = new String[params.length];
 					System.out.println(params.length);
-					for(int i = 0;i<params.length;i++)
-						paramTypes[i] = params[i].split(" ")[0];
-					for(int i = 0;i<params.length;i++)
+					for(int i = 0;i<params.length;i++){
+						try{
+							paramTypes[i] = params[i].split(" ")[0];
+						}catch(Exception e){
+							dispArea.setText(e.toString());
+						}
+					}
+					for(int i = 0;i<params.length;i++){
+						try{
 						paramValues[i] = params[i].split(" ")[1];
+						}catch(Exception e){
+							dispArea.setText(e.toString());
+						}
+					}
 				}
 				if(!interpret.methodNameInputText.getText().equals("")){
 						Class t = createdObject.getClass();
@@ -540,7 +556,7 @@ public class Interpreter extends Frame{
 					}catch (SecurityException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							interpret.dispArea.setText(e.getMessage());
+							interpret.dispArea.setText(e.toString());
 						}
 					}
 				
@@ -562,16 +578,14 @@ public class Interpreter extends Frame{
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							dispArea.append(e.getMessage());
+							dispArea.append(e.toString());
 						}
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						dispArea.append(e.getMessage());
+						dispArea.append(e.toString());
 					}catch (InvocationTargetException ite){
-						for(Type et:exceptions)
-							if(et == ite.getCause().getClass())
-								dispArea.append("\n" + "throw " + ite.getCause().toString());
+							dispArea.append("\n" + "throw " + ite.getCause().toString());
 					}
 				}else{//引数がある場合
 					if(interpret.methodParamInputText.getText().equals(""))
@@ -588,6 +602,7 @@ public class Interpreter extends Frame{
 								try {
 									Object o;
 									if(paramValues[0].equals("selected")){
+										System.out.println(selectedObject.toString());
 										o = method.invoke(createdObject,selectedObject);
 									}
 									else
@@ -598,17 +613,15 @@ public class Interpreter extends Frame{
 								} catch (IllegalArgumentException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
-									dispArea.setText(e.getMessage());
+									dispArea.setText(e.toString());
 								} catch (IllegalAccessException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
-									dispArea.setText(e.getMessage());
+									dispArea.setText(e.toString());
 								} catch (InvocationTargetException ite) {
 									// TODO Auto-generated catch block
 									ite.printStackTrace();
-									for(Type et:exceptions)
-										if(et == ite.getCause().getClass())
-											dispArea.append("\n" + "throw " + ite.getCause().toString());
+									dispArea.append("\n" + "throw " + ite.getCause().toString());
 								}
 							}
 						}
@@ -629,12 +642,18 @@ public class Interpreter extends Frame{
 				try {
 					if(tf.getText().equals("selected"))
 						showContents(selectedObject);
-					else
+					else{
+						try{
 						showContents(Class.forName(interpret.tf.getText()));
+						}catch(NullPointerException e){
+							dispArea.setText(e.toString());
+						}
+					}
 	
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					dispArea.setText(e.toString());
 				}
 			}
 		}
@@ -652,6 +671,7 @@ public class Interpreter extends Frame{
 					String newValue = interpret.fieldValueInputText.getText();
 					try {
 						Class<?> cls = createdObject.getClass();
+						
 						Field f = cls.getDeclaredField(interpret.fieldNameInputText.getText());
 						
 						f.setAccessible(true);
@@ -663,20 +683,20 @@ public class Interpreter extends Frame{
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							interpret.dispArea.setText(e.getMessage());
+							interpret.dispArea.setText(e.toString());
 						} catch (IllegalAccessException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							interpret.dispArea.setText(e.getMessage());
+							interpret.dispArea.setText(e.toString());
 						}
 					} catch (SecurityException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						interpret.dispArea.setText(e.getMessage());
+						interpret.dispArea.setText(e.toString());
 					} catch (NoSuchFieldException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						interpret.dispArea.setText(e.getMessage());
+						interpret.dispArea.setText(e.toString());
 					}
 				}
 			}
@@ -841,16 +861,23 @@ public class Interpreter extends Frame{
     private static String strip(String base,String remove){
     	return Pattern.compile(remove).matcher(base).replaceAll("");
     }
+    public static boolean isPrimitive(String s){
+    	String[] types = {"int","byte","char","long","short","boolean","float"};
+    	ArrayList<String> typesArray = new ArrayList<String>();
+    	for(String st:types)
+    		typesArray.add(st);
+    	return typesArray.contains(s);
+    }
 	public static Object returnValue(String value, Type type){
 		if(type == int.class){
-			System.out.println("Int");
 			//System.out.println(value);
 			return Integer.parseInt(value);
 		}
 		else if(type == String.class){
-			System.out.println("Called");
 			return value;
 		}
+		else if(type == char.class)
+			return value.charAt(0);
 		else if(type == byte.class)
 			return Byte.parseByte(value);
 		else if(type == long.class)
@@ -874,8 +901,9 @@ public class Interpreter extends Frame{
 	}
 	public static Type returnType(String s) 
 			throws ClassNotFoundException{
-		if(int.class.toString().contains(s))
+		if(int.class.toString().contains(s)){
 			return int.class;
+		}
 		else if(String.class.toString().contains(s))
 			return String.class;
 		else if(byte.class.toString().contains(s))
@@ -888,14 +916,10 @@ public class Interpreter extends Frame{
 			return short.class;
 		else if(Color.class.toString().contains(s))
 			return Color.class;
-		else if(Frame.class.toString().contains(s))
-			return Frame.class;
-		else if(Frame.class.toString().contains(s))
+		else if(boolean.class.toString().contains(s))
 			return boolean.class;
-		else if(Frame.class.toString().contains(s))
+		else if(char.class.toString().contains(s))
 			return char.class;
-		else if(TestSample.class.toString().contains(s))
-			return TestSample.class;
 		else
 			return Class.forName(s);
 	}

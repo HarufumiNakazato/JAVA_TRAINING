@@ -1,4 +1,4 @@
-package gui1_4;
+package gui2_1;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,7 +8,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
-import java.util.Locale;
 
 
 public class PropertyFrame extends Dialog{
@@ -38,9 +37,9 @@ public class PropertyFrame extends Dialog{
 	private Label labelFontColor;
 	private Label labelBackgroundColor;
 	
-	public static Color[] cr = {Color.black,Color.blue,Color.cyan,Color.darkGray,Color.gray,Color.green,Color.magenta,
+	private Color[] cr = {Color.black,Color.blue,Color.cyan,Color.darkGray,Color.gray,Color.green,Color.magenta,
 			Color.orange,Color.pink,Color.red,Color.white,Color.yellow};
-	public static String[] strCrs = {"Black","Blue","Cyan","DarkGray","Gray","Green","Magenta",
+	private String[] strCrs = {"Black","Blue","Cyan","DarkGray","Gray","Green","Magenta",
 			"Orange","Pink","Red","White","Yellow"};
 	public static final String[] SIZES = {"5","8","9","10","12","14","18","20","24","36","48","72","96","120","180","240","360"};
 	private Button okButton;
@@ -50,11 +49,8 @@ public class PropertyFrame extends Dialog{
 	private String beforeFontSize;
 	private Color beforeFontColor;
 	private Color beforeBackgroundColor; 
-	private GridBagLayout gbl = new GridBagLayout();
 	
-	enum Location{
-		CENTER,NORTH,NORTHEAST,NORTHWEST,SOUTH,SOUTHEAST,SOUTHWEST,EAST,WEST;
-	}
+	
 	public PropertyFrame(ClockView view, String title, boolean modal){
 		super(view,title,modal);
 		this.view = view;
@@ -63,10 +59,9 @@ public class PropertyFrame extends Dialog{
 		fontColor = view.getDefaultFontColor();
 		backgroundColor = view.getDefaultBackgroundColor();
 		
-		this.setLocation(view.getLocation().x , view.getLocation().y + 30);
 		setSize(width,height);
-		//this.setLocation(Setting.ENV.getMaximumWindowBounds().width/2 + view.getWidth(),
-				//Setting.ENV.getMaximumWindowBounds().height/2);
+		this.setLocation(ClockView.ENV.getMaximumWindowBounds().width/2 + view.getWidth(),
+				ClockView.ENV.getMaximumWindowBounds().height/2);
 		setVisible(false);
 		setTitle(title);
 		setResizable(false);
@@ -76,11 +71,10 @@ public class PropertyFrame extends Dialog{
 		
 		cancelButton = new Button("Cancel");
 		cancelButton.setBackground(Color.lightGray);
-		
 		this.recieveCloseEvent();
 		this.recieveokButtonEvent();
 		this.recievecancelButtonEvent();
-		this.setLayout(gbl);
+		this.setLayout(new GridLayout(5,1));
 		
 		choiceName = new Choice();
 		choiceSize = new Choice();
@@ -100,62 +94,21 @@ public class PropertyFrame extends Dialog{
 		this.addItemsFontColor();
 		this.addItemsBackgroundColor();
 		
-		this.addButton(labelName, 0, 0, 1, 1,Location.EAST);
-		this.addButton(choiceName,1,0,1,1,Location.WEST);
-		this.addButton(labelSize,0,1,1,1,Location.EAST);
-		this.addButton(choiceSize, 1, 1, 1, 1,Location.WEST);
-		this.addButton(labelFontColor, 0, 2, 1, 1,Location.EAST);
-		this.addButton(choiceFontColor, 1, 2, 1, 1,Location.WEST);
-		this.addButton(labelBackgroundColor, 0, 3, 1, 1,Location.EAST);
-		this.addButton(choiceBackgroundColor, 1, 3, 1, 1,Location.WEST);
-		this.addButton(okButton, 1, 4, 1, 1,Location.SOUTHEAST);
-		this.addButton(cancelButton, 2, 4, 1, 1,Location.SOUTHEAST);
+		
+		this.add(labelName);
+		this.add(choiceName);
+		this.add(labelSize);
+		this.add(choiceSize);
+		this.add(labelFontColor);
+		this.add(choiceFontColor);
+		this.add(labelBackgroundColor);
+		this.add(choiceBackgroundColor);
+		
+		this.add(okButton);
+		this.add(cancelButton);
 		
 	}
-	//GridBagLayoutにボタンを配置
-	public void addButton(Component b, int x, int y,int w,int h,Location location){
-		GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = x;
-        gbc.gridy = y;
-        gbc.gridwidth = w;
-        gbc.gridheight = h;
-        
-        switch(location){
-        case CENTER:
-        	gbc.anchor = GridBagConstraints.CENTER;
-        	break;
-        case NORTH:
-        	gbc.anchor = GridBagConstraints.NORTH;
-        	System.out.println("north");
-        	break;
-        case SOUTH:
-        	gbc.anchor = GridBagConstraints.SOUTH;
-        	break;
-        case EAST:
-        	gbc.anchor = GridBagConstraints.EAST;
-        	System.out.println("EAST");
-        	break;
-        case WEST:
-        	gbc.anchor = GridBagConstraints.WEST;
-        	break;
-        case NORTHEAST:
-        	gbc.anchor = GridBagConstraints.NORTHEAST;
-        	break;
-        case NORTHWEST:
-        	gbc.anchor = GridBagConstraints.NORTHWEST;
-        	break;
-        case SOUTHEAST:
-        	gbc.anchor = GridBagConstraints.SOUTHEAST;
-        	break;
-        case SOUTHWEST:
-        	gbc.anchor = GridBagConstraints.SOUTHWEST;
-        	break;
-        }
-        
-        gbl.setConstraints(b, gbc);
-        
-        add(b);
-	}
+	
 	//閉じるボタンを押したときの処理
 	public void recieveCloseEvent(){
 		addWindowListener(new WindowAdapter(){
@@ -172,7 +125,7 @@ public class PropertyFrame extends Dialog{
 		for(int i = 0; i < fs.length; i++){
 			choiceName.add(fs[i]);
 		}
-		choiceName.select(search(fs, this.fontName));
+		choiceName.select(Arrays.binarySearch(fs, this.fontName));
 		class MyItemListener implements ItemListener{
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
@@ -187,10 +140,8 @@ public class PropertyFrame extends Dialog{
 		
 		for(int i = 0; i < SIZES.length; i++){
 			choiceSize.add(SIZES[i]);
-			System.out.println("SIZES[" + i + "] = " + SIZES[i]);
 		}
-
-		choiceSize.select(search(SIZES, this.fontSize));
+		choiceSize.select(Arrays.binarySearch(SIZES, this.fontSize));
 		class MyItemListener implements ItemListener{
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
@@ -201,14 +152,6 @@ public class PropertyFrame extends Dialog{
 		}
 		choiceSize.addItemListener(new MyItemListener());
 	}
-	private String search(String[] ary, String s){
-		for(int i = 0;i<ary.length;i++){
-			if(ary[i].equals(s))
-			return ary[i];
-		}
-		return null;
-		
-	}
 	//Font Colorをドロップリストに追加
 	private void addItemsFontColor(){
 		
@@ -216,19 +159,12 @@ public class PropertyFrame extends Dialog{
 			choiceFontColor.add(strCrs[i]);
 		}
 		
-		choiceFontColor.select(search(strCrs, ClockView.colorToString(this.fontColor)));
+		choiceFontColor.select(Arrays.binarySearch(strCrs, "Black"));
 		class MyItemListener implements ItemListener{
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				//　イベント発生時の処理
-				fontColor = cr[indSearch(strCrs, choiceFontColor.getSelectedItem())];
-			}
-			private int indSearch(String[] ary, String s){
-				for(int i = 0;i<strCrs.length;i++){
-					if(strCrs[i].equals(choiceFontColor.getSelectedItem()))
-						return i;
-				}
-				return -1;
+				fontColor = cr[Arrays.binarySearch(strCrs, choiceFontColor.getSelectedItem())];
 			}
 		}
 		choiceFontColor.addItemListener(new MyItemListener());
@@ -238,19 +174,12 @@ public class PropertyFrame extends Dialog{
 		for(int i = 0; i < strCrs.length; i++){
 			choiceBackgroundColor.add(strCrs[i]);
 		}
-		choiceBackgroundColor.select(search(strCrs, ClockView.colorToString(this.backgroundColor)));
+		choiceBackgroundColor.select(Arrays.binarySearch(strCrs, "White"));
 		class MyItemListener implements ItemListener{
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				//　イベント発生時の処理
-				backgroundColor = cr[indSearch(strCrs, choiceBackgroundColor.getSelectedItem())];
-			}
-			private int indSearch(String[] ary, String s){
-				for(int i = 0;i<strCrs.length;i++){
-					if(strCrs[i].equals(choiceBackgroundColor.getSelectedItem()))
-						return i;
-				}
-				return -1;
+				backgroundColor = cr[Arrays.binarySearch(strCrs, choiceBackgroundColor.getSelectedItem())];
 			}
 		}
 		choiceBackgroundColor.addItemListener(new MyItemListener());
@@ -280,7 +209,6 @@ public class PropertyFrame extends Dialog{
 				view.setSetting(beforeFontName, Integer.parseInt(beforeFontSize), beforeFontColor, beforeBackgroundColor);
 
 				setVisible(false);
-				
 			}
 		}
 		cancelButton.addActionListener(new MyActionListener());
@@ -316,7 +244,6 @@ public class PropertyFrame extends Dialog{
 		this.beforeFontSize = size;
 		this.beforeFontColor = col;
 		this.beforeBackgroundColor = bcol;
-		
 	}
 	
 

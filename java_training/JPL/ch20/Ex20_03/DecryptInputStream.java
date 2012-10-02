@@ -13,6 +13,7 @@ public class DecryptInputStream extends FilterReader{
 	private int key;
 	
 	public static void main(String[] args){
+		System.out.println("“ü —ÍF" + args[0]);
 		int key = 10;
 		byte[] encoded;
 		byte[] decoded;
