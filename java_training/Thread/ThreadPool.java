@@ -84,8 +84,10 @@ public class ThreadPool {
 	public void stop() {
 		if(state != Thread.State.RUNNABLE)
 			throw new IllegalStateException();
-    	for(int i = 0;i < threads.length; i++)
-    		threads[i].interrupt();
+    	for(int i = 0;i < threads.length; i++) {
+    		while(threads[i].getState() != Thread.State.TERMINATED)
+    			threads[i].interrupt();
+    	}
     	state = Thread.State.TERMINATED;
     }
 
