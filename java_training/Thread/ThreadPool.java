@@ -3,8 +3,7 @@
  * Copyright (C) 2012 RICOH Co., Ltd. All rights reserved.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 /**
  * Simple Thread Pool class.
  *
@@ -22,7 +21,28 @@ import java.util.List;
 public class ThreadPool {
 
 
-	
+	private  LimitedQueue<Runnable> queue;
+	private PoolWorker[] threads;
+	private Thread.State state = Thread.State.NEW;
+
+	class LimitedQueue<E> extends LinkedList<E> {
+	        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+			private int limit;
+
+	        public LimitedQueue(int limit) {
+	            this.limit = limit;
+	        }
+
+	        @Override
+	        public boolean add(E o) {
+	            super.add(o);
+	            //while (size() > limit) { super.remove(); }
+	            return true;
+	        }
+	    }
     /**
      * Constructs ThreadPool.
      *
@@ -33,7 +53,12 @@ public class ThreadPool {
      *         is less than 1
      */
     public ThreadPool(int queueSize, int numberOfThreads) {
-    	throw new AssertionError("Not Implemented Yet");
+    	if(queueSize < 1 || numberOfThreads < 1)
+    		throw new IllegalArgumentException();
+    	queue = new LimitedQueue<Runnable>(queueSize);
+    	threads = new PoolWorker[numberOfThreads];
+    	for(int i = 0;i < numberOfThreads;i++)
+    		threads[i] = new PoolWorker();   		
     }
 
     /**
@@ -42,7 +67,13 @@ public class ThreadPool {
      * @throws IllegalStateException if threads has been already started.
      */
     public void start() {
-       	throw new AssertionError("Not Implemented Yet");
+    	if(state == Thread.State.RUNNABLE)
+    		throw new IllegalStateException();
+    	
+    	for(int i = 0;i < threads.length; i++) {
+    		threads[i].start();
+    	}
+    	state = Thread.State.RUNNABLE;
     }   
 
     /**
@@ -50,8 +81,12 @@ public class ThreadPool {
      *
      * @throws IllegalStateException if threads has not been started.
      */
-    public void stop() {
-       	throw new AssertionError("Not Implemented Yet");
+	public void stop() {
+		if(state != Thread.State.RUNNABLE)
+			throw new IllegalStateException();
+    	for(int i = 0;i < threads.length; i++)
+    		threads[i].interrupt();
+    	state = Thread.State.TERMINATED;
     }
 
     /**
@@ -64,6 +99,47 @@ public class ThreadPool {
      * @throws IllegalStateException if this pool has not been started yet.
      */
     public synchronized void dispatch(Runnable runnable) {
-       	throw new AssertionError("Not Implemented Yet");
+    	if(runnable == null)
+    		throw new NullPointerException();
+    	if(state != Thread.State.RUNNABLE)
+    		throw new IllegalStateException();
+    	synchronized(queue){
+    		queue.add(runnable);
+    		queue.notifyAll();
+    	}
+    }
+    private class PoolWorker extends Thread {
+    	private boolean stopFrag;
+        public void run() {
+            Runnable r;
+            this.stopFrag = false;
+            while (true) {
+            	synchronized(queue) {
+                    while (queue.isEmpty()) {
+                        try
+                        {
+                            queue.wait();
+                        }
+                        catch (InterruptedException ignored)
+                        {
+                        	System.out.println("interrupted()");
+                        	this.stopFrag = true;
+                        	break;
+                        }
+                    }
+                    if(this.stopFrag)
+                    	break;
+                    
+                    r = queue.removeFirst();
+                }
+                // If we don't catch RuntimeException, // the pool could leak threads
+                try {
+                	r.run();
+                }
+                catch (RuntimeException e) {
+                    // You might want to log something here
+                }
+            }
+        }
     }
 }

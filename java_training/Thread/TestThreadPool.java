@@ -234,7 +234,6 @@ public class TestThreadPool {
 		// By the specification, stop() will wait for the terminations 
 		// of all threads.
 		tp.stop();
-		
 		assertEquals(numberOfThreads, threads.size());
 	}
 	
@@ -260,7 +259,8 @@ public class TestThreadPool {
 		// By the specification, stop() will wait for the terminations 
 		// of all threads.
 		tp.stop();
-		
+		System.out.println("size() = " + threads.size());
+
 		assertEquals(numberOfThreads, threads.size());
 		for (Thread t: threads)
 			assertFalse(t.isAlive());
