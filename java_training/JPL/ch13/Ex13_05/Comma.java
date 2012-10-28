@@ -30,6 +30,8 @@ public class Comma {
 	}
 	public static void main(String[] args){
 		Comma c = new Comma();
-		System.out.println(c.insertAny("1233456789",'\\',7));
+		System.out.println(c.insertComma("12345678"));
+		System.out.println(c.insertComma("1234"));
+		//System.out.println(c.insertAny("1233456789",'\\',7));
 	}
 }

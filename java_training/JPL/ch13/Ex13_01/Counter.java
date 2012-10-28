@@ -16,6 +16,6 @@ public class Counter {
 	
 	public static void main(String args[]){
 		Counter counter = new Counter();
-		System.out.println(counter.countStr("abcdefbsdcbcaebef", "mmm"));
+		System.out.println(counter.countStr("abcdefbsdcbcaebef", "bc"));
 	}
 }

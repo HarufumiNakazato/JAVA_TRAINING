@@ -10,13 +10,23 @@ public class Display {
 		private int interval;
 		private String message;
 		private int time;
+		class DispMessageThread implements Runnable{
+			public void run(){
+				dispMessage();
+			}
+
+			public void start() {
+				// TODO Auto-generated method stub
+				
+			}
+		}
 		public MessageThread(int interval,String message){
 			this.interval = interval;
 			this.message = message;
 			Thread t = new Thread(this);
 			t.start();
-			dispMessage();
-
+			DispMessageThread dt = new DispMessageThread();
+			dt.start();
 		}
 
 		@Override
