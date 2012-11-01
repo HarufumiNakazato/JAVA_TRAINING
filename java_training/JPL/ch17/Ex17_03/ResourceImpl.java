@@ -1,20 +1,21 @@
 package ch17.Ex17_03;
 
+import java.lang.ref.*;
+
 public class ResourceImpl implements Resource{
-	int keyHash;
 	boolean needsRelease = false;
+	private WeakReference<Object> key;
 	
 	ResourceImpl(Object key){
-		keyHash = System.identityHashCode(key);
-		
+		this.key = new WeakReference<Object>(key);
 		//外部リソースの設定
 		needsRelease = true;
 		
 	}
 	public void use(Object key, Object...args){
-		if (System.identityHashCode(key) != keyHash)
+		//keyが同じかどうかをチェックして違ったら使用できない
+		if(!this.key.equals(key))
 			throw new IllegalArgumentException("wrong key");
-		
 		//リソースの使用
 	}
 	
