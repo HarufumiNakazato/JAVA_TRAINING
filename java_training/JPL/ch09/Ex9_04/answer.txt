@@ -1,0 +1,12 @@
+3 << 2L - 1 : 6 (int)
+(3L << 2) - 1 : 11(long)
+10 < 12 == 6 > 17 : true(boolean)
+13.5e-1 % Float.POSITIVE_INFINITY : 1.35(double)
+Float.POSITIVE.INFINITY + Double.NEGATIVE_INFINITY:NaN
+Double.POSITIVE_INFINITY - Float.NEGATIVE_INFINITY : NaN
+0.0 / -0.0 == -0.0 / 0.0 : false(boolean)
+Integer.NAX_VALUE + Integer.MIN_VALUE : -1(Integer)
+Long.MAX_VALUE + 5:-9223372036854775804(double)
+(short) 5 * (byte) 10 : 50(int)
+(i < 15 ? 1.72e3f : 0) :　コンパイルエラー
+i++ + i++ + --i : 10(int)

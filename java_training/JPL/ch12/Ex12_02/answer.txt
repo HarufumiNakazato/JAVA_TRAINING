@@ -1,0 +1,7 @@
+- PassengerVehicleオブジェクトの定員を負の値に設定しようとした -> NullPointerException
+- オブジェクトがその初期値を設定するのに使用するファイルに、文法エラーが見つかった -> IOException
+- プログラマが指定した単語を文字列の配列から検索するメソッドが、その単語を発見できない -> return null;
+- openメソッドへ指定されたファイルが存在しない -> FileNotFoundException
+- openメソッドへ指定されたファイルは存在するが、セキュリティにより使用できない。-> AccessControlException
+- リモートのサーバプロセスにネットワークコネクションを確立しようとするが、リモートのマシンと接続できない。 -> ConnectException
+- リモートのサーバプロセスとのやり取りの最中に、ネットワークコネクションが切れる。 -> SocketException/IOException
