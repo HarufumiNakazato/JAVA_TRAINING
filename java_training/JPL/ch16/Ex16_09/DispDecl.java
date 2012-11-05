@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class DispDecl {
 	public static void main(String[] args){
-		args = new String[]{"ch16.Ex16_09.ClassContents"};
+		args = new String[]{"java.util.HashMap"};
 		try {
 			Class<?> cls = Class.forName(args[0]);
 			System.out.println(cls.getName());
