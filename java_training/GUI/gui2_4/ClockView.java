@@ -3,24 +3,14 @@ package gui2_4;
 
 
 import gui2_4.ClockView.DispPanel;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridLayout;
-import java.awt.Menu;
-import java.awt.MenuItem;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -35,6 +25,7 @@ public class ClockView extends JFrame{
 	/**
 	 * 
 	 */
+	private Preferences prefs;
 	private static final long serialVersionUID = 1L;
 	private int width = 100;
 	private int height = 100;
@@ -62,6 +53,7 @@ public class ClockView extends JFrame{
 	
 	public ClockView(){
 		view = this;
+		prefs = Preferences.userNodeForPackage(this.getClass());
 		this.getContentPane().setPreferredSize(new Dimension(width,height));
 		//this.setSize(width, height);
 		panel = new DispPanel();
@@ -121,7 +113,7 @@ public class ClockView extends JFrame{
 	public void createMainForm(){
 		property = new PropertyFrame(this,"Property",true);
 		property.setPanel((DispPanel)panel);
-		property.setLocation(getX() + width, getY());
+		property.setLocation(getX()+ width, getY());
 		this.setMainForm();
 		this.recieveCloseEvent();
 		minimumDimension = this.getMinimumSize();
@@ -131,6 +123,7 @@ public class ClockView extends JFrame{
 	public void recieveCloseEvent(){
 		addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
+				saveLocation();
 				System.exit(0);
 			}
 		});
@@ -139,6 +132,9 @@ public class ClockView extends JFrame{
 	private void setMainForm(){
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		this.setLocationRelativeTo(null);
+		Point p = loadLocation();
+		if(p != null)
+			this.setLocation(p);
 		this.setTitle("Digital Clock");
 		this.setResizable(true);
 		this.setLayout(new FlowLayout());
@@ -223,5 +219,20 @@ public class ClockView extends JFrame{
 	public void setFontSize(int fontSize){
 		this.fontSize = fontSize;
 		f = new Font(fontName,fontStyle,this.fontSize);
+	}
+	
+	public void saveLocation() {
+		prefs.putInt("x", this.getLocation().x);
+		prefs.putInt("y", this.getLocation().y);
+		System.out.println("Save complete");
+	}
+	public Point loadLocation() {
+		int x = prefs.getInt("x", -100);
+		int y = prefs.getInt("y", -100);
+		if(x == -100)
+			return null;
+		if(y == -100)
+			return null;
+		return new Point(x,y);
 	}
 }

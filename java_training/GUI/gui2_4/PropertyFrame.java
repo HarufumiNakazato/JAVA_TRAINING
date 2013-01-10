@@ -13,12 +13,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.*;
+import java.io.*;
 import java.util.Arrays;
 
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.imageio.*;
+import javax.swing.*;
 
 
 public class PropertyFrame extends JDialog{
@@ -46,7 +46,7 @@ public class PropertyFrame extends JDialog{
 	
 	private Label labelName;
 	private Label labelSize;
-	private Label labelFontColor;
+	private JLabel labelFontColor;
 	private Label labelBackgroundColor;
 	
 	private DispPanel panel;
@@ -67,10 +67,43 @@ public class PropertyFrame extends JDialog{
 	private Color beforeFontColor;
 	private Color beforeBackgroundColor; 
 	
+	private BufferedImage image;
 	enum Location{
 		CENTER,NORTH,NORTHEAST,NORTHWEST,SOUTH,SOUTHEAST,SOUTHWEST,EAST,WEST;
 	}
+	class ComboLabel{
+		String text;
+		  Icon icon;
+
+		  ComboLabel(String text, Icon icon){
+		    this.text = text;
+		    this.icon = icon;
+		  }
+
+		  public String getText(){
+		    return text;
+		  }
+
+		  public Icon getIcon(){
+		    return icon;
+		  }
+	}
 	
+	class MyCellRenderer extends JLabel implements ListCellRenderer {
+		  public Component getListCellRendererComponent(
+		            JList list,
+		            Object value,
+		            int index,
+		            boolean isSelected,
+		            boolean cellHasFocus){
+
+		      ComboLabel data = (ComboLabel)value;
+		      setText(data.getText());
+		      setIcon(data.getIcon());
+
+		    return this;
+		  }
+		}
 	public PropertyFrame(ClockView view, String title, boolean modal){
 		super(view,title,modal);
 		this.view = view;
@@ -105,14 +138,14 @@ public class PropertyFrame extends JDialog{
 
 		labelName = new Label("Font Name",Label.LEFT);
 		labelSize = new Label("Font Size",Label.LEFT);
-		labelFontColor = new Label("Font Color", Label.LEFT);
+		labelFontColor = new JLabel("Font Color", Label.LEFT);
 		labelBackgroundColor = new Label("Backgroud Color",Label.LEFT);
 		
 		
 		
 		labelName = new Label("Font Name",Label.LEFT);
 		labelSize = new Label("Font Size",Label.LEFT);
-		labelFontColor = new Label("Font Color", Label.LEFT);
+		labelFontColor = new JLabel("Font Color", Label.LEFT);
 		labelBackgroundColor = new Label("Backgroud Color",Label.LEFT);
 
 		
@@ -121,6 +154,8 @@ public class PropertyFrame extends JDialog{
 		this.addItemsFontColor();
 		this.addItemsBackgroundColor();
 		
+		makeColorTips(choiceFontColor);
+		makeColorTips(choiceBackgroundColor);
 		//Buttonの配置
 	    GridBagConstraints gbc = new GridBagConstraints();
 	    	    
@@ -135,7 +170,10 @@ public class PropertyFrame extends JDialog{
 		this.addButton(okButton, 1, 4, 1, 1,Location.SOUTHEAST);
 		this.addButton(cancelButton, 2, 4, 1, 1,Location.SOUTHEAST);
 
+		//JlabelにColorチップを埋め込む関数
+		
 		this.createColorPanel();
+		/*
 		//this.recieveMouseMove();
 		choiceFontColor.addFocusListener(new java.awt.event.FocusAdapter() {
 	        public void focusGained(java.awt.event.FocusEvent e) {
@@ -151,6 +189,7 @@ public class PropertyFrame extends JDialog{
 	        		colorTipFrame.setVisible(true);
 	        }//focus Gained
 	});//addFocusListener
+	*/
 		choiceName.addMouseMotionListener(new MouseMotionListener(){
 			@Override
 			public void mouseDragged(MouseEvent e) {
@@ -163,7 +202,37 @@ public class PropertyFrame extends JDialog{
 			}
 		});
 	}
-	//GridBagLayoutにボタンを配置
+	private void makeColorTips(JComboBox combo) {
+		// TODO Auto-generated method stub
+		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		
+		for(int i = 0;i < cr.length;i++) {
+			String path = makeColorRectungle(cr[i]);
+			//アイコンを埋め込む
+			Icon icon = new ImageIcon(path);
+			model.addElement(new ComboLabel(strCrs[i],icon));
+		}
+		combo.setModel(model);
+		MyCellRenderer renderer = new MyCellRenderer();
+		combo.setRenderer(renderer);
+	}
+		private String makeColorRectungle(Color color) {
+		// TODO Auto-generated method stub
+			BufferedImage im = new BufferedImage(5,5,BufferedImage.TYPE_INT_RGB);
+			Graphics g = im.getGraphics();
+			g.setColor(color);
+			System.out.println(color);
+			g.fillRect(0,0,5,5);
+			g.dispose();
+			try {
+				ImageIO.write(im,"png",new File("rect_" + color.hashCode() + ".png"));
+			} catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			return "rect_" + color.hashCode() + ".png";
+	}
+		//GridBagLayoutにボタンを配置
 		public void addButton(Component b, int x, int y,int w,int h,Location location){
 			GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.gridx = x;
@@ -287,7 +356,8 @@ public class PropertyFrame extends JDialog{
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				//　イベント発生時の処理
-				fontColor = cr[Arrays.binarySearch(strCrs, choiceFontColor.getSelectedItem())];
+				
+				fontColor = cr[choiceFontColor.getSelectedIndex()];
 				//view.setSetting(fontName, Integer.parseInt(fontSize), fontColor, backgroundColor);
 				view.setColor(fontColor);
 			}
@@ -304,7 +374,7 @@ public class PropertyFrame extends JDialog{
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				//　イベント発生時の処理
-				backgroundColor = cr[Arrays.binarySearch(strCrs, choiceBackgroundColor.getSelectedItem())];
+				backgroundColor = cr[choiceBackgroundColor.getSelectedIndex()];
 				//view.setSetting(fontName, Integer.parseInt(fontSize), fontColor, backgroundColor);
 				view.setBackground(backgroundColor);
 			}
